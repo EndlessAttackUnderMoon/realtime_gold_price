@@ -3,4 +3,4 @@ display_name: 实时金价 # 用于展示的名字，可以是方便人类阅读
 desc: 获取实时金价。 # 插件简短描述
 version: v1.1 # 插件版本号。格式：v1.1.1 或者 v1.1
 author: EndlessAttackUnderMoon # 作者
-repo: https://github.com/Soulter/helloworld # 插件的仓库地址
+repo: https://github.com/EndlessAttackUnderMoon/realtime_gold_price.git # 插件的仓库地址
