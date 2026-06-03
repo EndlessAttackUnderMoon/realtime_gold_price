@@ -47,11 +47,11 @@ class PluginRealtimeGoldPrice(Star):
 
         text = ""
         try:
-            apiUrl = "http://web.juhe.cn/finance/gold/shgold"
             apiKey = self.config['apiKey']
             if apiKey == None or apiKey == "":
                 text = "配置错误!"
             else:
+                apiUrl = "http://web.juhe.cn/finance/gold/shgold"
                 resp_data = get_url_info(apiUrl, apiKey)
                 if resp_data == None:
                     text = "请求失败呀，等会儿再试试吧!"
