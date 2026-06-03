@@ -1,24 +1,66 @@
-from astrbot.api.event import filter, AstrMessageEvent, MessageEventResult
+from astrbot.api.event import filter, AstrMessageEvent
 from astrbot.api.star import Context, Star, register
 from astrbot.api import logger
+import requests
 
-@register("helloworld", "YourName", "一个简单的 Hello World 插件", "1.0.0")
-class MyPlugin(Star):
+apiUrl = 'apiUrl'
+apiKey = 'apiKey'
+
+def get_url_info():
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.72 Safari/537.36 Edg/90.0.818.41",
+        "Content-Type": "application/x-www-form-urlencoded"
+    }
+    requestParams = {
+        'key': apiKey,
+        'v': ''}
+    try:
+        response = requests.get(apiUrl, headers=headers, params=requestParams)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return None
+    except Exception as e:
+        return None    
+
+def get_au9999_data(resp_data):
+    sub_data = resp_data["result"][0]
+    for v in sub_data.values():
+        if v["variety"] == "Au99.99":
+            return v
+
+@register("实时金价", "EndlessAttackUnderMoon", "获取实时金价。", "1.1")
+class PluginRealtimeGoldPrice(Star):
     def __init__(self, context: Context):
         super().__init__(context)
 
     async def initialize(self):
         """可选择实现异步的插件初始化方法，当实例化该插件类之后会自动调用该方法。"""
 
-    # 注册指令的装饰器。指令名为 helloworld。注册成功后，发送 `/helloworld` 就会触发这个指令，并回复 `你好, {user_name}!`
-    @filter.command("helloworld")
-    async def helloworld(self, event: AstrMessageEvent):
-        """这是一个 hello world 指令""" # 这是 handler 的描述，将会被解析方便用户了解插件内容。建议填写。
-        user_name = event.get_sender_name()
-        message_str = event.message_str # 用户发的纯文本消息字符串
-        message_chain = event.get_messages() # 用户所发的消息的消息链 # from astrbot.api.message_components import *
-        logger.info(message_chain)
-        yield event.plain_result(f"Hello, {user_name}, 你发了 {message_str}!") # 发送一条纯文本消息
-
     async def terminate(self):
         """可选择实现异步的插件销毁方法，当插件被卸载/停用时会调用。"""
+
+    @filter.command("实时金价")
+    async def get_realtime_gold_price(self, event: AstrMessageEvent):
+        """这是一个AstrBot的 实时金价 指令，可获取实时金价。""" # handler描述
+        message_chain = event.get_messages() # 用户所发的消息的消息链 # from astrbot.api.message_components import *
+        logger.info(message_chain)
+
+        text = ""
+        try:
+            resp_data = get_url_info()
+            if resp_data == None:
+                text = "请求失败呀，等会儿再试试吧!"
+            else:
+                au9999_data = get_au9999_data(resp_data)
+                if bool(au9999_data) == False:        
+                    text = "没有获取到数据呢，等会儿再试试吧!"
+                else:
+                    text = f"查到Au99.99最新数据了哦\n最新价: {au9999_data['latestpri']}\n开盘价: {au9999_data['openpri']}\n最高价: {au9999_data['maxpri']}\n" + \
+                        f"最低价: {au9999_data['minpri']}\n涨跌幅: {au9999_data['limit']}\n昨日收盘价: {au9999_data['yespri']}\n" + \
+                        f"总成交量: {au9999_data['totalvol']}\n更新时间{au9999_data['time']}"
+        except Exception as e:
+            logger.error(f"请求失败: {str(e)}")
+            text = "请求失败!"
+
+        yield event.plain_result(text) # 发送一条纯文本消息
