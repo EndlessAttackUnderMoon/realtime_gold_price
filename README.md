@@ -2,4 +2,4 @@
 
 这是一个AstrBot的 实时金价 指令插件，可获取实时金价。
 
-需要获取请求金价的api接口和apikey，然后在main.py中配置。
+需要前往[聚合数据API 黄金数据](https://www.juhe.cn/docs/api/id/29 "聚合数据API 黄金数据")获取一个API Key（每天可免费使用50次），配置到插件后可以正确请求和解析。

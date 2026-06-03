@@ -1,0 +1,6 @@
+{
+    "apiKey": {
+        "description": "请求Key",
+        "type": "string"
+    }
+}
